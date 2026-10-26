@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>オリカ工房</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #171923;
+  color: #f4f4f5;
+  font-family: sans-serif;
+}
+header {
+  padding: 20px;
+  text-align: center;
+  background: #242638;
+  border-bottom: 2px solid #e0b34c;
+}
+header h1 { margin: 0 0 6px; }
+main {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(280px, 1fr);
+  gap: 24px;
+  max-width: 1050px;
+  padding: 24px;
+  margin: auto;
+}
+.panel {
+  background: #242638;
+  border-radius: 12px;
+  padding: 20px;
+}
+label {
+  display: block;
+  margin-top: 14px;
+  font-size: 14px;
+}
+input, select, textarea, button {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #555a70;
+  font: inherit;
+}
+input, select, textarea {
+  background: #171923;
+  color: white;
+}
+textarea { min-height: 100px; resize: vertical; }
+button {
+  background: #e0b34c;
+  color: #201b10;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+#card {
+  width: 100%;
+  max-width: 340px;
+  margin: auto;
+  padding: 10px;
+  background: linear-gradient(145deg, #e7c776, #72502b);
+  border: 4px solid #f3dfa0;
+  border-radius: 14px;
+  color: #191919;
+  box-shadow: 0 8px 25px #0008;
+}
+#cardInner {
+  padding: 10px;
+  background: #e9dfc4;
+  border-radius: 5px;
+}
+#cardName {
+  margin: 0 0 8px;
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+#art {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  background: #393344;
+}
+#details {
+  font-size: 12px;
+  font-weight: bold;
+  margin: 8px 0;
+}
+#effect {
+  min-height: 90px;
+  padding: 10px;
+  background: #f8f2df;
+  border: 2px solid #8e7850;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+#power {
+  text-align: right;
+  font-weight: bold;
+  margin: 8px 0 0;
+}
+.note { color: #c9c9d4; font-size: 12px; }
+@media(max-width: 680px) {
+  main { grid-template-columns: 1fr; padding: 12px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>オリカ工房</h1>
+  <div>自分だけのカードを作ろう！</div>
+</header>
+
+<main>
+<section class="panel">
+  <h2>カード情報</h2>
+
+  <label>カード名
+    <input id="name" value="暴の頂 ネロ・ヴライヴァン・ヨムラー">
+  </label>
+
+  <label>カードの種類
+    <select id="type">
+      <option>クリーチャー</option>
+      <option>呪文</option>
+      <option>タマシード</option>
+      <option>クロスギア</option>
+      <option>フィールド</option>
+    </select>
+  </label>
+
+  <label>文明
+    <select id="civilization">
+      <option>ゼロ文明</option>
+      <option>光文明</option>
+      <option>水文明</option>
+      <option>闇文明</option>
+      <option>火文明</option>
+      <option>自然文明</option>
+      <option>光/水</option>
+      <option>水/闇</option>
+      <option>闇/火</option>
+      <option>火/自然</option>
+      <option>自然/光</option>
+      <option>五文明</option>
+    </select>
+  </label>
+
+  <label>コスト
+    <input id="cost" type="number" min="0" value="10">
+  </label>
+
+  <label>種族
+    <input id="race" value="ゼニス・クリーチャー">
+  </label>
+
+  <label>パワー
+    <input id="powerInput" value="∞" placeholder="例：13000">
+  </label>
+
+  <label>能力・効果
+    <textarea id="effectInput">■このクリーチャーが召喚によって出た時、カードを引く。
+■T・ブレイカー
+■エターナル・Ω</textarea>
+  </label>
+
+  <label>イラスト
+    <input id="imageInput" type="file" accept="image/*">
+  </label>
+
+  <button id="download">PNG画像として保存</button>
+  <p class="note">入力した内容はこの画面でカードに反映されます。</p>
+</section>
+
+<section class="panel">
+  <h2>カードプレビュー</h2>
+  <div id="card">
+    <div id="cardInner">
+      <h3 id="cardName"></h3>
+      <img id="art" alt="カードイラスト">
+      <div id="details"></div>
+      <div id="effect"></div>
+      <div id="power"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function updateCard() {
+  $("cardName").textContent = $("name").value || "カード名";
+  $("details").textContent =
+    "コスト " + ($("cost").value || "0") +
+    " ｜ " + $("civilization").value +
+    " ｜ " + $("type").value +
+    ($("race").value ? "\n" + $("race").value : "");
+  $("effect").textContent = $("effectInput").value;
+  $("power").textContent =
+    $("type").value === "クリーチャー"
+      ? "パワー " + ($("powerInput").value || "0")
+      : "";
+}
+
+document.querySelectorAll("input:not([type=file]), select, textarea")
+  .forEach(el => el.addEventListener("input", updateCard));
+
+$("imageInput").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => $("art").src = reader.result;
+  reader.readAsDataURL(file);
+});
+
+$("download").addEventListener("click", async () => {
+  const card = $("card");
+  const scale = 3;
+  const canvas = document.createElement("canvas");
+  const rect = card.getBoundingClientRect();
+  canvas.width = rect.width * scale;
+  canvas.height = rect.height * scale;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  // カード本体を描画
+  ctx.fillStyle = "#e7c776";
+  ctx.fillRect(0, 0, rect.width, rect.height);
+  ctx.fillStyle = "#e9dfc4";
+  ctx.fillRect(14, 14, rect.width - 28, rect.height - 28);
+
+  const pad = 24;
+  const w = rect.width - pad * 2;
+  let y = 32;
+
+  function text(str, x, top, font, color = "#191919") {
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.fillText(str, x, top);
+  }
+
+  function wrap(str, x, top, maxWidth, lineHeight, font) {
+    ctx.font = font;
+    let line = "";
+    for (const char of str) {
+      if (char === "\n") {
+        text(line, x, top, font);
+        top += lineHeight;
+        line = "";
+      } else if (ctx.measureText(line + char).width > maxWidth) {
+        text(line, x, top, font);
+        top += lineHeight;
+        line = char;
+      } else {
+        line += char;
+      }
+    }
+    if (line) text(line, x, top, font);
+    return top + lineHeight;
+  }
+
+  y = wrap($("name").value || "カード名", pad, y, w, 28, "bold 21px sans-serif");
+  y += 4;
+
+  const img = $("art");
+  if (img.complete && img.naturalWidth) {
+    const h = Math.min(w, rect.height * 0.44);
+    const ratio = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+    const iw = img.naturalWidth * ratio;
+    const ih = img.naturalHeight * ratio;
+    ctx.drawImage(img, pad + (w - iw) / 2, y, iw, ih);
+    y += h + 8;
+  } else {
+    ctx.fillStyle = "#393344";
+    ctx.fillRect(pad, y, w, w * 0.55);
+    y += w * 0.55 + 8;
+  }
+
+  y = wrap(
+    $("details").textContent, pad, y, w, 17, "bold 12px sans-serif"
+  );
+  y += 6;
+  y = wrap($("effectInput").value, pad + 5, y, w - 10, 19, "14px sans-serif");
+  y += 10;
+
+  if ($("type").value === "クリーチャー") {
+    text("パワー " + ($("powerInput").value || "0"),
+      pad, y, "bold 15px sans-serif");
+  }
+
+  const link = document.createElement("a");
+  link.download = "orica.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+});
+
+updateCard();
+</script>
+</body>
+</html>
